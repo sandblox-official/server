@@ -6,50 +6,60 @@ import (
 	"os"
 
 	"github.com/gorilla/websocket"
-	"github.com/sandblox-official/server/game"
+	"github.com/sandblox-official/game/server"
 )
 
-var upgrader = websocket.Upgrader{}
-var uid = 1
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+var uid = 1000
 
 func main() {
-	//Set log file
-	f, err := os.OpenFile("logs/main.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	//Logs
+	f, err := os.OpenFile("./logs/main", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
-
 	log.SetOutput(f)
-	log.Println("Server start")
-	defer log.Println("Server end")
-	worlds := make(map[string]*game.World)
-	player1 := game.Player{
-		Name: "player1",
-		X:    0.5,
-		Y:    3,
-		Z:    1,
-	}
-	worlds["test1"] = game.CreateWorld("test1", player1)
+	//Static Files
+	fs := http.FileServer(http.Dir("./webroot"))
+	http.Handle("/", fs)
+	//Socket Hanlder
+	worlds := server.Worlds
+	worlds["test1"] = server.CreateWorld()
 	go worlds["test1"].Run()
 	http.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Client connected to world 1")
 		serveWs(worlds["test1"], w, r)
 	})
-	err = http.ListenAndServe(":8080", nil)
+	worlds["test2"] = server.CreateWorld()
+	go worlds["test2"].Run()
+	http.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Client connected to world 2")
+		serveWs(worlds["test2"], w, r)
+	})
+	//Serve and Run Worlds
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal("ListenAndServe: ", err)
 	}
 }
-func serveWs(world *game.World, w http.ResponseWriter, r *http.Request) {
+
+func serveWs(world *server.World, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	client := &game.Client{ID: uid, World: world, Conn: conn, Send: make(chan []byte, 256)}
+	client := &server.Client{ID: uid, World: world, Conn: conn, Send: make(chan []byte, 256)}
 	client.World.Join <- client
-	uid++
+	uid += 1000
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

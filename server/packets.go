@@ -1,22 +1,30 @@
-package game
+package server
 
-//Packet ...
+//Packet is the data format for socket broadcasts
 type Packet struct {
 	Method string `json:"method"`
-	Data   Data   `json:"data"`
+	Data   Data
 }
 
 //Data ...
 type Data struct {
 	//Outgoing
-	Player Player `json:"player"`
-	Chat   Chat   `json:"chat"`
+	Player Player
+	Chat   Chat
+}
+
+//Player ...
+type Player struct {
+	Name string
+	X    float32
+	Y    int
+	Z    int
 }
 
 //Chat ...
 type Chat struct {
-	From string `json:"from"`
-	Body string `json:"body"`
+	From string
+	Body string
 }
 
 //GetOutputPacket takes an input to generate an output
