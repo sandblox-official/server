@@ -35,7 +35,7 @@ func main() {
 		log.Println("Client connected to world 1")
 		serveWs(worlds["test1"], w, r)
 	})
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
