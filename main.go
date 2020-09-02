@@ -23,9 +23,6 @@ func main() {
 	}
 	defer f.Close()
 	log.SetOutput(f)
-	//Static Files
-	fs := http.FileServer(http.Dir("./webroot"))
-	http.Handle("/", fs)
 	//Get all worlds from database
 	worlds := server.Worlds
 	worldsFromDB := []string{
