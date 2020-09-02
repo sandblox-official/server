@@ -14,7 +14,7 @@ var uid = 1
 
 func main() {
 	//Set log file
-	f, err := os.OpenFile("testlogfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("logs/main.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -22,6 +22,7 @@ func main() {
 
 	log.SetOutput(f)
 	log.Println("Server start")
+	defer log.Println("Server end")
 	worlds := make(map[string]*game.World)
 	player1 := game.Player{
 		Name: "player1",
