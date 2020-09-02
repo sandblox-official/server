@@ -26,20 +26,26 @@ func main() {
 	//Static Files
 	fs := http.FileServer(http.Dir("./webroot"))
 	http.Handle("/", fs)
-	//Socket Hanlder
+	//Get all worlds from database
 	worlds := server.Worlds
-	worlds["test1"] = server.CreateWorld()
-	go worlds["test1"].Run()
-	http.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Client connected to world 1")
-		serveWs(worlds["test1"], w, r)
-	})
-	worlds["test2"] = server.CreateWorld()
-	go worlds["test2"].Run()
-	http.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Client connected to world 2")
-		serveWs(worlds["test2"], w, r)
-	})
+	worldsFromDB := []string{
+		"world1",
+		"world2",
+		"world3",
+	}
+	for _, world := range worldsFromDB {
+		worlds[world] = server.CreateWorld()
+		go func(world string) {
+			worlds[world].Run()
+
+		}(world)
+		world := world
+		http.HandleFunc("/"+world, func(w http.ResponseWriter, r *http.Request) {
+			log.Println("Client connected to", world)
+			serveWs(worlds[world], w, r)
+		})
+	}
+
 	//Serve and Run Worlds
 	port := os.Getenv("PORT")
 	if port == "" {
