@@ -3,19 +3,19 @@ package server
 //Packet is the data format for socket broadcasts
 type Packet struct {
 	Method string `json:"method"`
-	Data   Data
+	Data   Data   `json:"data"`
 }
 
 //Data ...
 type Data struct {
 	//Outgoing
-	Player Player
-	Chat   Chat
+	Player Player `json:"player"`
+	Chat   Chat   `json:"chat"`
 }
 
 //Player ...
 type Player struct {
-	Name string
+	Name string `json:"name"`
 	X    float32
 	Y    int
 	Z    int
@@ -23,8 +23,8 @@ type Player struct {
 
 //Chat ...
 type Chat struct {
-	From string
-	Body string
+	From string `json:"from"`
+	Body string `json:"body"`
 }
 
 //GetOutputPacket takes an input to generate an output
