@@ -1,5 +1,7 @@
 package server
 
+import "log"
+
 //Packet is the data format for socket broadcasts
 type Packet struct {
 	Method string `json:"method"`
@@ -37,6 +39,7 @@ func (inPacket *Packet) GetOutputPacket() Packet {
 		return *outPacket
 	case "message":
 		outPacket.Data.Chat = inPacket.Data.Chat
+		log.Println("New message: '", inPacket.Data.Chat.Body, "'", "from", inPacket.Data.Chat.From)
 		return *outPacket
 	}
 
