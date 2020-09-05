@@ -46,7 +46,7 @@ func main() {
 	//Serve and Run Worlds
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8082"
 	}
 	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
