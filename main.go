@@ -40,7 +40,8 @@ func main() {
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	var worldNames = []worldName{}
 	json.Unmarshal(bodyBytes, &worldNames)
-	for _, world := range worldNames {
+	for key, world := range worldNames {
+		log.Println("Serve world", key+1, "/", len(worldNames), "[", world.Name, "]")
 		worlds[world.Name] = server.CreateWorld()
 		go func(world string) {
 			worlds[world].Run()
@@ -58,6 +59,8 @@ func main() {
 	if port == "" {
 		port = "8082"
 	}
+	log.Println("")
+	log.Println("Server ready on port", port)
 	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
