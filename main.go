@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +17,10 @@ var upgrader = websocket.Upgrader{
 }
 var uid = 0
 
+type worldName struct {
+	Name string `json:"name"`
+}
+
 func main() {
 	//Logs
 	f, err := os.OpenFile("./logs/main.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -25,21 +31,25 @@ func main() {
 	log.SetOutput(f)
 	//Get all worlds from database
 	worlds := server.Worlds
-	worldsFromDB := []string{
-		"world1",
-		"world2",
-		"world3",
+	resp, err := http.Get("http://localhost:8080/worlds")
+	if err != nil {
+		log.Fatalln(err)
 	}
-	for _, world := range worldsFromDB {
-		worlds[world] = server.CreateWorld()
+
+	defer resp.Body.Close()
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	var worldNames = []worldName{}
+	json.Unmarshal(bodyBytes, &worldNames)
+	for _, world := range worldNames {
+		worlds[world.Name] = server.CreateWorld()
 		go func(world string) {
 			worlds[world].Run()
 
-		}(world)
+		}(world.Name)
 		world := world
-		http.HandleFunc("/"+world, func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/"+world.Name, func(w http.ResponseWriter, r *http.Request) {
 			log.Println("Client connected to", world)
-			serveWs(worlds[world], w, r)
+			serveWs(worlds[world.Name], w, r)
 		})
 	}
 
