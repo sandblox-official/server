@@ -1,4 +1,4 @@
-module github.com/sandblox-official/game
+module github.com/sandblox-official/sockets-server
 
 go 1.15
 
