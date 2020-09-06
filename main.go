@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/gorilla/websocket"
-	"github.com/sandblox-official/socket-server/server"
+	"github.com/sandblox-official/sockets-server/server"
 )
 
 var upgrader = websocket.Upgrader{
