@@ -35,10 +35,10 @@ func (inPacket *Packet) GetOutputPacket() Packet {
 	switch inPacket.Method {
 	case "move":
 		outPacket.Method = "move"
-		outPacket.Data.Player = inPacket.Data.Player
+		outPacket = inPacket
 		return *outPacket
 	case "message":
-		outPacket.Data.Chat = inPacket.Data.Chat
+		outPacket = inPacket
 		log.Println("New message: '", inPacket.Data.Chat.Body, "'", "from", inPacket.Data.Chat.From)
 		return *outPacket
 	}
