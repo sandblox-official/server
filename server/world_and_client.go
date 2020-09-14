@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -103,12 +104,12 @@ func (c *Client) Consume() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		messageNativePacket := &Packet{}
+		messageNativePacket.Data.Chat.From = strconv.Itoa(c.ID)
 		err = json.Unmarshal([]byte(message), &messageNativePacket)
 		if err != nil {
 			log.Println("JSON Conversion err", err)
 		}
-		outMessage := messageNativePacket.GetOutputPacket()
-		outMessage.Data.Player.Name = string(c.ID)
+		outMessage := messageNativePacket.GetOutputPacket(c)
 		outJSONMessage, err := json.Marshal(outMessage)
 		c.World.Broadcast <- outJSONMessage
 

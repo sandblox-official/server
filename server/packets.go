@@ -1,6 +1,9 @@
 package server
 
-import "log"
+import (
+	"log"
+	"strconv"
+)
 
 //Packet is the data format for socket broadcasts
 type Packet struct {
@@ -30,7 +33,7 @@ type Chat struct {
 }
 
 //GetOutputPacket takes an input to generate an output
-func (inPacket *Packet) GetOutputPacket() Packet {
+func (inPacket *Packet) GetOutputPacket(c *Client) Packet {
 	outPacket := &Packet{}
 	switch inPacket.Method {
 	case "move":
@@ -39,6 +42,7 @@ func (inPacket *Packet) GetOutputPacket() Packet {
 		return *outPacket
 	case "message":
 		outPacket = inPacket
+		outPacket.Data.Chat.From = strconv.Itoa(c.ID)
 		log.Println("New message: '", inPacket.Data.Chat.Body, "'", "from", inPacket.Data.Chat.From)
 		return *outPacket
 	}
