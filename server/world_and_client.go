@@ -108,7 +108,7 @@ func (c *Client) Consume() {
 			log.Println("JSON Conversion err", err)
 		}
 		outMessage := messageNativePacket.GetOutputPacket()
-		outMessage.Data.Player.Name = c.ID
+		outMessage.Data.Player.Name = string(c.ID)
 		outJSONMessage, err := json.Marshal(outMessage)
 		c.World.Broadcast <- outJSONMessage
 
